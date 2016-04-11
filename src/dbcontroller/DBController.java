@@ -1,27 +1,52 @@
 package dbcontroller;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DBController {
-	  public static void main( String args[] )
+    private static DBController instance = new DBController();
+
+    static DBController getInstance() {
+        return instance;
+    }
+
+    private Connection connection;
+    private Statement stmt;
+
+
+    private DBController() {
+        connection = null;
+        try {
+            Class.forName(Params.JDBC);
+            connection = DriverManager.getConnection(Params.DB_ConnectionName);
+        } catch ( Exception e ) {
+            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+            System.exit(0);
+        }
+        System.out.println("Opened database successfully");
+
+    }
+
+    public ResultSet loadPerson() {
+        try {
+            System.out.println("Loading Person");
+            stmt = connection.createStatement();
+            String query = "SELECT * FROM Person";
+            ResultSet rs = stmt.executeQuery(query);
+            System.out.println("Loaded Person successfully");
+            return rs;
+        } catch (Exception e) {
+            // stuff
+        }
+        return null;
+    }
+
+    public static void main( String args[] )
 	  {
-	    Connection c = null;
-	    try {
-	      Class.forName("org.sqlite.JDBC");
-	      c = DriverManager.getConnection("jdbc:sqlite:DataWareHouse.db");
-	    } catch ( Exception e ) {
-	      System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-	      System.exit(0);
-	    }
-	    System.out.println("Opened database successfully");
-	  
+	    DBController dbController = DBController.getInstance();
+
 	    Statement stmt = null;
 	    try {
-	      stmt = c.createStatement();
+	      stmt = dbController.connection.createStatement();
 	      String sql = "DROP TABLE IF EXISTS Person;"
 	      		+ "CREATE TABLE Person " +
 	                   "(ID INTEGER PRIMARY KEY     AUTOINCREMENT, " +
@@ -85,7 +110,7 @@ public class DBController {
 	      rs.close();
 	      
 	      stmt.close();
-	      c.close();
+	      dbController.connection.close();
 	    } catch ( Exception e ) {
 	      System.err.println( e.getClass().getName() + ": " + e.getMessage() );
 	      System.exit(0);

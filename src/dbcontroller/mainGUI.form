@@ -17,7 +17,9 @@
         <children>
           <component id="adcc7" class="javax.swing.JTable" binding="table1" default-binding="true">
             <constraints/>
-            <properties/>
+            <properties>
+              <fillsViewportHeight value="true"/>
+            </properties>
           </component>
         </children>
       </scrollpane>
